@@ -15,78 +15,88 @@ Also add random guassian noise.
 """
 
 def gen_waveform(t, freq, wave='square'):
-	""" 
-	Generate a waveform of specific frequency
-	against the given timestamps.
+    """ 
+    Generate a waveform of specific frequency
+    against the given timestamps.
 
-	Arguments
-	---------
-	t: numpy array
-		Time series to plot against
+    Arguments
+    ---------
+    t: numpy array
+        Time series to plot against
 
-	freq: int
-		Frequency of desired waveform
+    freq: int
+        Frequency of desired waveform
 
-	wave: str
-		Accepts 'square', 'sawtooth' or 'pwm'.
-	"""
+    wave: str
+        Accepts 'square', 'sawtooth' or 'pwm'.
+    """
 
-	if wave == 'square':
-		return signal.square(2 * np.pi * freq * t)
+    if wave == 'square':
+        return signal.square(2 * np.pi * freq * t)
 
-	elif wave == 'sawtooth':
-		return signal.sawtooth(2 * np.pi * freq * t)
+    elif wave == 'sawtooth':
+        return signal.sawtooth(2 * np.pi * freq * t)
 
-	elif wave == 'pwm':
-		signal.square(2 * np.pi * freq * t, duty=(sig + 1)/2)
+    elif wave == 'pwm':
+        return signal.square(2 * np.pi * freq * t, duty=0.5)
 
 def add_noise(sig):
-	"""Adds random guassian noise to the signal. """
+    """Adds random guassian noise to the signal. """
 
-	noise = np.random.normal(0, 1, len(sig))
-	return sig + 0.1*noise
+    noise = np.random.normal(0, 1, len(sig))
+    return sig + 0.1*noise
 
 def time_slice(sig, N=128, K=64):
-	""" Time slice signal into samples of 128 data
-	points. 
+    """ Time slice signal into samples of 128 data
+    points. 
 
-	Arguments
-	---------
-	sig: numpy array
-		Input signal
+    Arguments
+    ---------
+    sig: numpy array
+        Input signal
 
-	N: int
-		Window length
+    N: int
+        Window length
 
-	K: int
-		Overlap between windows
-	"""
+    K: int
+        Overlap between windows
+    """
 
-	k = len(data) / K
-	X = np.zeros((k, 1, N))
+    k = len(sig) / K
+    X = np.zeros((k, 1, N))
 
-	low = 0
-	high = N
+    low = 0
+    high = N
 
-	for i in range(0, k-1):
-		X[i] = sig[low:high]
-		low += K
-		high += K
+    for i in range(0, k-1):
+        X[i] = sig[low:high]
+        low += K
+        high += K
 
-	return X
+    return X
 
+def create_dataset():
+    """
+    Main function to create dataset using the
+    helper functions defined above.
+    """
 
-# 128*200 because we have an overlap of 50%
-# (see time_slice function)
-t = np.linspace(0, 1, 128 * 200, endpoint=False)
+    dataset = {}
+    sigs = ['square', 'sawtooth', 'pwm']
 
-from matplotlib import pyplot as plt
-data = gen_waveform(t, 1000, 'square')
-data = add_noise(data)
-data = time_slice(data)
+    for sig in sigs:
+        # 128*200 because we have an overlap of 50%
+        # (see time_slice function)
+        t = np.linspace(0, 1, 128 * 200, endpoint=False)
 
-#plt.plot(data[10][0])
+        data = gen_waveform(t, 1000, sig)
+        data = add_noise(data)   
+        dataset[(sig)] =  time_slice(data)
 
-plt.show()
+        with open('dataset.pickle', 'wb') as handle:
+            pickle.dump(dataset, handle)
 
+    return dataset
+
+create_dataset()
 
