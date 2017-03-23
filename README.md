@@ -1,2 +1,2 @@
-# 1-D Time-Series Analysis using CNNs
-Keras CNN models for 1d time-series analysis.
+# Time-Series Analysis using Keras
+Implement CNN (Convolutional neural network) models for 1d time-series analysis in Keras.
