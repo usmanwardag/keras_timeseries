@@ -4,12 +4,12 @@ import pickle
 import scipy.signal as signal
 
 """
-Generate a pickle file with 400 samples (with 
+Generate a pickle file with 100 samples (with 
 128 data points each) for the following 3 waveforms:
 
 - Squre waveform
 - Sawtooth waveform
-- PWM waveform
+- Sinusoid
 
 Also add random guassian noise.
 """
@@ -28,7 +28,7 @@ def gen_waveform(t, freq, wave='square'):
         Frequency of desired waveform
 
     wave: str
-        Accepts 'square', 'sawtooth' or 'pwm'.
+        Accepts 'square', 'sawtooth' or 'sin'.
     """
 
     if wave == 'square':
@@ -37,8 +37,8 @@ def gen_waveform(t, freq, wave='square'):
     elif wave == 'sawtooth':
         return signal.sawtooth(2 * np.pi * freq * t)
 
-    elif wave == 'pwm':
-        return signal.square(2 * np.pi * freq * t, duty=0.5)
+    elif wave == 'sin':
+        return np.sin(2 * np.pi * freq * t)
 
 def add_noise(sig):
     """Adds random guassian noise to the signal. """
@@ -82,14 +82,14 @@ def create_dataset():
     """
 
     dataset = {}
-    sigs = ['square', 'sawtooth', 'pwm']
+    sigs = ['square', 'sawtooth', 'sin']
 
     for sig in sigs:
-        # 128*200 because we have an overlap of 50%
+        # 128*50 because we have an overlap of 50%
         # (see time_slice function)
-        t = np.linspace(0, 1, 128 * 200, endpoint=False)
+        t = np.linspace(0, 1, 128 * 50, endpoint=False)
 
-        data = gen_waveform(t, 1000, sig)
+        data = gen_waveform(t, 100, sig)
         data = add_noise(data)   
         dataset[(sig)] =  time_slice(data)
 
